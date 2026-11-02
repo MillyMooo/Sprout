@@ -71,8 +71,21 @@ button{cursor:pointer}
 .hero{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;background:linear-gradient(160deg,var(--cream),var(--card));border:1px solid var(--line);border-radius:28px;padding:18px 16px 0 18px;overflow:hidden}
 .hero .bubble{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:10px 12px;font-size:14px;margin:10px 0 16px;max-width:30ch}
 .sprout{width:128px;height:128px;display:block}
-.sprout .sway{transform-origin:64px 58px;animation:sway 4.5s ease-in-out infinite}
-@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.sprout{overflow:visible}
+.sprout .bob{transform-origin:64px 118px;animation:bob 2.6s ease-in-out infinite}
+.sprout .sway{transform-origin:64px 58px;animation:sway 3.2s ease-in-out infinite}
+.sprout .eyes{transform-origin:64px 84px;animation:blink 4.8s ease-in-out infinite}
+.sprout .shadow{transform-origin:64px 120px;animation:shadow 2.6s ease-in-out infinite}
+.sprout .petals{animation:spin 9s linear infinite}
+.sprout .cheeks{animation:glow 2.6s ease-in-out infinite}
+.sprout.hop .hopper{transform-origin:64px 118px;animation:hop .75s cubic-bezier(.3,.7,.4,1) 2}
+@keyframes bob{0%,100%{transform:translateY(0) scale(1.03,.96)}45%{transform:translateY(-6px) scale(.98,1.03)}60%{transform:translateY(-6px) scale(.99,1.02)}}
+@keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes blink{0%,44%,48%,90%,94%,100%{transform:scaleY(1)}46%,92%{transform:scaleY(.1)}}
+@keyframes shadow{0%,100%{transform:scaleX(1);opacity:.14}45%,60%{transform:scaleX(.8);opacity:.08}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{opacity:.75}50%{opacity:1}}
+@keyframes hop{0%{transform:translateY(0) scale(1,1)}20%{transform:translateY(0) scale(1.1,.88)}50%{transform:translateY(-18px) scale(.94,1.08)}80%{transform:translateY(0) scale(1.06,.93)}100%{transform:translateY(0) scale(1,1)}}
 .ringrow{display:flex;align-items:center;gap:14px}
 .ring{width:56px;height:56px;flex:none}
 
@@ -363,16 +376,18 @@ function sproutSvg(frac){
   const leafL='<path d="M64 46c-4-10-14-14-22-12 2 9 11 14 22 12z" fill="var(--sage)" stroke="var(--tile-ink)" stroke-width="2" stroke-linejoin="round"/>';
   const leafR='<path d="M64 42c4-11 15-15 23-12-2 9-12 14-23 12z" fill="var(--sage)" stroke="var(--tile-ink)" stroke-width="2" stroke-linejoin="round"/>';
   const leafT='<path d="M64 36c-3-8 0-15 6-19 3 7 0 15-6 19z" fill="var(--moss)" stroke="var(--tile-ink)" stroke-width="2" stroke-linejoin="round"/>';
-  const flower=`<g transform="translate(64 22)">${[0,72,144,216,288].map(a=>`<ellipse rx="5" ry="7.5" cy="-7" transform="rotate(${a})" fill="var(--blush)" stroke="var(--tile-ink)" stroke-width="1.6"/>`).join('')}<circle r="4.5" fill="var(--butter)" stroke="var(--tile-ink)" stroke-width="1.6"/></g>`;
+  const flower=`<g transform="translate(64 22)"><g class="petals">${[0,72,144,216,288].map(a=>`<ellipse rx="5" ry="7.5" cy="-7" transform="rotate(${a})" fill="var(--blush)" stroke="var(--tile-ink)" stroke-width="1.6"/>`).join('')}</g><circle r="4.5" fill="var(--butter)" stroke="var(--tile-ink)" stroke-width="1.6"/></g>`;
+  const hop=V.hop;V.hop=false;
   const happy=frac>=0.5;
-  return `<svg class="sprout" viewBox="0 0 128 128" aria-hidden="true">
-  <ellipse cx="64" cy="120" rx="34" ry="5" fill="var(--tile-ink)" opacity=".12"/>
+  return `<svg class="sprout${hop?' hop':''}" viewBox="0 0 128 128" aria-hidden="true">
+  <ellipse class="shadow" cx="64" cy="120" rx="34" ry="5" fill="var(--tile-ink)" opacity=".12"/>
+  <g class="hopper"><g class="bob">
   <g class="sway"><path d="M64 58V${bloom?28:40}" stroke="var(--tile-ink)" stroke-width="2.4" stroke-linecap="round"/>${leafL}${leaves>=2?leafR:''}${leaves>=3&&!bloom?leafT:''}${bloom?flower:''}</g>
   <path d="M30 88c0-20 15-32 34-32s34 12 34 32-14 30-34 30-34-10-34-30z" fill="var(--bean)" stroke="var(--tile-ink)" stroke-width="2.4"/>
-  <ellipse cx="46" cy="94" rx="6" ry="3.6" fill="var(--blush)" opacity=".85"/><ellipse cx="82" cy="94" rx="6" ry="3.6" fill="var(--blush)" opacity=".85"/>
-  ${happy?'<path d="M48 84c2-3.5 6-3.5 8 0M72 84c2-3.5 6-3.5 8 0" stroke="var(--tile-ink)" stroke-width="2.6" fill="none" stroke-linecap="round"/>':'<circle cx="52" cy="84" r="3.4" fill="var(--tile-ink)"/><circle cx="76" cy="84" r="3.4" fill="var(--tile-ink)"/>'}
+  <g class="cheeks"><ellipse cx="46" cy="94" rx="6" ry="3.6" fill="var(--blush)"/><ellipse cx="82" cy="94" rx="6" ry="3.6" fill="var(--blush)"/></g>
+  ${happy?'<path d="M48 84c2-3.5 6-3.5 8 0M72 84c2-3.5 6-3.5 8 0" stroke="var(--tile-ink)" stroke-width="2.6" fill="none" stroke-linecap="round"/>':'<g class="eyes"><circle cx="52" cy="84" r="3.4" fill="var(--tile-ink)"/><circle cx="76" cy="84" r="3.4" fill="var(--tile-ink)"/></g>'}
   <path d="${happy?'M58 93c3 4 9 4 12 0':'M59 94c3 2 7 2 10 0'}" stroke="var(--tile-ink)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-  </svg>`;
+  </g></g></svg>`;
 }
 function sproutLine(frac,done,total,name){
   const h=new Date().getHours();
@@ -390,32 +405,33 @@ let tt;function toast(m){const el=document.getElementById('toast');el.textConten
 let tempSetup=null;
 let V={logDate:today(),period:'week',anchor:today(),edit:null,confirm:null,setupUnit:'ft',newHabit:null,newTracker:null};
 const app=document.getElementById('app');
-function banner(){return S.mode==='local'?`<div class="banner">Saved in this browser only. Open the tracker signed in to claude.ai to keep it across devices.</div>`:S.stale?`<div class="banner">Can't reach your saved data right now. Showing what's on this device.</div>`:''}
+function banner(){return ''}
 
 function viewSetup(){
-  const p=tempSetup||S.profile||{name:'Milly',age:27,heightCm:170.2,startWeight:98.4,startWaist:105,sprout:'Pip'};
-  const ft=Math.floor((p.heightCm/2.54)/12),inch=Math.round((p.heightCm/2.54)-ft*12);
+  const p=tempSetup||S.profile||{name:'',age:'',heightCm:null,startWeight:'',startWaist:'',sprout:'Pip'};
+  const hasH=p.heightCm>0;
+  const ft=hasH?Math.floor((p.heightCm/2.54)/12):'',inch=hasH?Math.round((p.heightCm/2.54)-ft*12):'';
   const isEdit=!!S.profile;
   return `<div class="stack">
-  ${isEdit?'':`<div class="hero" style="grid-template-columns:1fr auto"><div><div class="eyebrow">Welcome</div><h1 style="margin-top:4px">Let's plant your sprout</h1><p class="bubble">These are your starting numbers. Check them, then pick the goals to begin with.</p></div>${sproutSvg(0.2)}</div>`}
+  ${isEdit?'':`<div class="hero" style="grid-template-columns:1fr auto"><div><div class="eyebrow">Welcome</div><h1 style="margin-top:4px">Let's plant your sprout</h1><p class="bubble">Add your starting numbers, then pick the goals to begin with.</p></div>${sproutSvg(0.2)}</div>`}
   <form class="card stack" id="setupForm" autocomplete="off">
     <h2>${isEdit?'Your details':'About you'}</h2>
     <div class="grid2">
-      <label class="f">Name<input class="inp" id="s_name" value="${esc(p.name)}" required></label>
+      <label class="f">Name<input class="inp" id="s_name" value="${esc(p.name)}" placeholder="Your name" required></label>
       <label class="f">Age<input class="inp num" id="s_age" type="number" inputmode="numeric" min="12" max="100" value="${esc(p.age)}" required></label>
     </div>
     <div class="stack" style="gap:8px">
       <div class="spread"><span class="f" style="font-size:13px;font-weight:600;color:var(--ink-2)">Height</span>
         <div class="seg" role="group" aria-label="Height unit"><button type="button" data-act="hunit" data-v="ft" aria-pressed="${V.setupUnit==='ft'}">ft / in</button><button type="button" data-act="hunit" data-v="cm" aria-pressed="${V.setupUnit==='cm'}">cm</button></div></div>
       ${V.setupUnit==='ft'?`<div class="grid2"><div class="unit"><input class="inp num" id="s_ft" type="number" inputmode="numeric" min="3" max="8" value="${ft}" aria-label="Feet"><span>ft</span></div><div class="unit"><input class="inp num" id="s_in" type="number" inputmode="numeric" min="0" max="11" value="${inch}" aria-label="Inches"><span>in</span></div></div>`
-      :`<div class="unit"><input class="inp num" id="s_cm" type="number" inputmode="decimal" step="0.1" min="100" max="230" value="${r1(p.heightCm)}" aria-label="Height in cm"><span>cm</span></div>`}
+      :`<div class="unit"><input class="inp num" id="s_cm" type="number" inputmode="decimal" step="0.1" min="100" max="230" value="${hasH?r1(p.heightCm):''}" aria-label="Height in cm"><span>cm</span></div>`}
     </div>
     <div class="grid2">
       <label class="f">${isEdit?'Starting weight':'Weight today'}<div class="unit"><input class="inp num" id="s_w" type="number" inputmode="decimal" step="0.1" min="30" max="300" value="${esc(p.startWeight)}" required><span>kg</span></div></label>
       <label class="f">${isEdit?'Starting waist':'Waist today'}<div class="unit"><input class="inp num" id="s_waist" type="number" inputmode="decimal" step="0.5" min="40" max="200" value="${esc(p.startWaist)}" required><span>cm</span></div></label>
     </div>
     <label class="f">Name your sprout<input class="inp" id="s_sprout" value="${esc(p.sprout||'Pip')}" maxlength="16"></label>
-    ${isEdit?'':`<div class="stack" style="gap:8px"><h3>Start with these goals</h3><p class="tiny muted">From your plan. You can change, add or remove goals any time.</p>
+    ${isEdit?'':`<div class="stack" style="gap:8px"><h3>Start with these goals</h3><p class="tiny muted">Suggested starting goals. You can change, add or remove goals any time.</p>
       <div class="stack" style="gap:6px">${DEFAULT_HABITS.map(h=>`<label class="row" style="gap:10px;font-weight:500"><input type="checkbox" id="dh_${h.id}" ${h.on?'checked':''} style="width:20px;height:20px;accent-color:var(--moss)"> ${esc(h.name)} <span class="chip">${h.freq==='daily'?'daily':h.target+'x a week'}</span></label>`).join('')}</div></div>`}
     <button class="btn block" type="submit">${isEdit?'Save details':'Start tracking'}</button>
     ${isEdit?'<button class="btn ghost block" type="button" data-act="go" data-v="me">Cancel</button>':''}
@@ -686,7 +702,7 @@ window.addEventListener('hashchange',()=>{logDirty=false;V.newHabit=null;V.newTr
 /* ---------- actions ---------- */
 function toggleTick(id,d){
   const day=JSON.parse(JSON.stringify(getDay(d)));day.done=day.done||{};
-  if(day.done[id])delete day.done[id];else day.done[id]=true;
+  if(day.done[id])delete day.done[id];else{day.done[id]=true;V.hop=true}
   putDay(d,day);
   // keep any unsaved log inputs: only re-render the habit list area when on log
   const r=(location.hash||'#today').slice(1);
